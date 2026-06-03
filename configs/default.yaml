@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# Default experiment configuration.
+# Override any field on the CLI, e.g.:
+#   python scripts/01_extract_features.py --config configs/default.yaml \
+#       dataset.name=cifar10 features.batch_size=128
+# ---------------------------------------------------------------------------
+
+seed: 42                      # global RNG seed (proposal fixes 42 for random projection)
+device: cuda                  # cuda | cpu | mps
+
+paths:
+  data_root: ./data           # torchvision downloads land here
+  weights_root: ./weights     # pretrained encoder checkpoints
+  feature_cache: ./features/cache
+  results_root: ./results
+
+dataset:
+  name: stl10                 # stl10 | cifar10
+  image_size: 224             # all inputs resized to 224x224 (bicubic) per proposal
+  interpolation: bicubic
+  splits:
+    fit: train                # split used to FIT the SVM
+    eval: test                # split used for SVD + SVM evaluation
+  num_workers: 4
+
+# Encoders compared throughout. Each entry resolved by encoders/registry.py.
+encoders:
+  - resnet18_supervised
+  - simclr_resnet18
+  - ijepa_vits16
+  - mae_vits16
+
+features:
+  batch_size: 256
+  amp: true                   # autocast mixed precision during extraction
+  # Preprocessing pipeline applied uniformly to every encoder's features.
+  # Order: random projection -> L2 normalize -> (mean-center happens inside SVD)
+  random_projection:
+    enabled: true
+    target_dim: 384           # common dim so SVM margins are comparable across encoders
+    seed: 42                  # proposal: entries ~ N(0, 1/target_dim), seed fixed at 42
+  l2_normalize: true
+
+svd:
+  rankme_epsilon: 1.0e-7      # numerical floor in RankMe entropy (Garrido et al. 2023)
+  collapse_threshold: 0.01    # singular-value fraction below which a dim is "collapsed"
+
+intrinsic_dim:
+  estimator: two_nn           # Facco et al. (2017) Two-NN
+  discard_fraction: 0.1       # drop the top 10% of mu ratios (outlier robustness)
+
+svm:
+  C: 1.0
+  max_samples_fit: 5000       # subsample fit split if larger (STL-10 train = 5000)
+  standardize: false          # features are already L2-normalized
+  class_weight: null
+
+# Optional extensions (Parts C & D) -- disabled by default.
+viewpoint:
+  enabled: false
+  modelnet_root: ./data/modelnet40v2png
+  num_views: 12
+
+perturbation:
+  enabled: false
+  num_images: 1000            # test images to perturb
+  types: [gaussian_noise, random_crop, gaussian_blur]
+  magnitudes: [0.0, 0.05, 0.1, 0.2, 0.4]   # interpreted per-perturbation

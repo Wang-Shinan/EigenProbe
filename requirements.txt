@@ -1,0 +1,21 @@
+# Core
+torch>=2.1
+torchvision>=0.16
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+
+# Pretrained vision backbones (ViT-S/16 for I-JEPA & MAE, ResNet for baselines)
+timm>=0.9.12
+
+# Config / CLI / logging
+pyyaml>=6.0
+tqdm>=4.66
+
+# Visualization
+matplotlib>=3.7
+seaborn>=0.12
+
+# Optional: ModelNet40 multi-view (Part C)
+# Pillow is pulled in by torchvision; listed for clarity
+Pillow>=10.0

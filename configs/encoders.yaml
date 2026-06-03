@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------------
+# Encoder registry metadata: where weights come from and how to load them.
+# Edit `checkpoint` paths after running scripts/00_download_weights.py.
+# Each key matches a name in encoders/registry.py.
+# ---------------------------------------------------------------------------
+
+resnet18_supervised:
+  family: resnet
+  arch: resnet18
+  paradigm: supervised
+  feature_dim: 512
+  source: torchvision          # uses torchvision IMAGENET1K weights
+  checkpoint: null             # null -> torchvision pretrained weights
+  pool: avgpool                # global average pool output (512-d)
+
+simclr_resnet18:
+  family: resnet
+  arch: resnet18
+  paradigm: contrastive
+  feature_dim: 512
+  source: local
+  # Convert an official SimCLR checkpoint to a torchvision-compatible state_dict.
+  checkpoint: ./weights/simclr_resnet18.pth
+  pool: avgpool
+
+ijepa_vits16:
+  family: vit
+  arch: vit_small_patch16_224
+  paradigm: predictive
+  feature_dim: 384
+  source: local
+  # I-JEPA ViT-S/16 target/context encoder weights (Meta Research).
+  checkpoint: ./weights/ijepa_vits16.pth
+  pool: mean                   # mean over patch tokens (I-JEPA has no CLS token)
+
+mae_vits16:
+  family: vit
+  arch: vit_small_patch16_224
+  paradigm: reconstruction
+  feature_dim: 384
+  source: local
+  # MAE ViT-S/16 encoder weights (Facebook Research).
+  checkpoint: ./weights/mae_vits16.pth
+  pool: mean                   # mean over patch tokens (drop CLS), matches I-JEPA
