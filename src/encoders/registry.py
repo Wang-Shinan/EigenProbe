@@ -3,8 +3,8 @@
 Specs live in configs/encoders.yaml. The four encoders compared throughout:
     resnet18_supervised  (supervised CNN baseline)
     simclr_resnet18      (contrastive baseline)
-    ijepa_vits16         (predictive -- focus of the study)
-    mae_vits16           (reconstruction -- architecture control vs I-JEPA)
+    ijepa_vitl16         (predictive -- focus of the study)
+    mae_vitl16           (reconstruction -- architecture control vs I-JEPA)
 """
 from __future__ import annotations
 

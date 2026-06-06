@@ -4,7 +4,7 @@ Proposal 2.5 fixes the pipeline so cross-encoder comparisons are fair:
 
   1. Random projection to a common dim (384) with entries ~ N(0, 1/384),
      seed=42. Applied uniformly so SVM margins are not confounded by the
-     512-d (ResNet) vs 384-d (ViT) output mismatch.
+     512-d (ResNet) vs 1024-d (ViT-L) output mismatch.
   2. L2 normalization of every feature vector, so margin and distance metrics
      are comparable across encoders with different output scales.
   3. Mean-centering (column means) -- applied inside the SVD step so that

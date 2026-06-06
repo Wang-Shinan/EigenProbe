@@ -17,10 +17,10 @@ INSTRUCTIONS = """
 Download the pretrained checkpoints and place them where configs/encoders.yaml
 points (default ./weights/):
 
-  I-JEPA ViT-S/16   -> weights/ijepa_vits16.pth
+  I-JEPA ViT-L/16   -> weights/ijepa_vitl16.pth
       https://github.com/facebookresearch/ijepa  (Meta Research)
-  MAE ViT-S/16      -> weights/mae_vits16.pth
-      https://github.com/facebookresearch/mae    (Facebook Research)
+  MAE ViT-L/16      -> weights/mae_vitl16.pth
+      https://github.com/facebookresearch/mae    (mae_pretrain_vit_large.pth)
   SimCLR ResNet-18  -> weights/simclr_resnet18.pth
       e.g. https://github.com/google-research/simclr (convert TF->torch) or a
       community PyTorch SimCLR checkpoint.

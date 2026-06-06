@@ -3,7 +3,7 @@
 Tests whether spectral richness (effective rank from Part A) is *associated* with
 geometric separability (SVM margin from Part B) across encoders. This is an
 empirical structural correlation, NOT a causal claim. The MAE/I-JEPA pair --
-identical ViT-S/16 architecture, different objective -- is the cleanest test
+identical ViT backbone, different objective -- is the cleanest test
 because architecture is held fixed.
 """
 from __future__ import annotations
