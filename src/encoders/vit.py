@@ -1,6 +1,6 @@
-"""ViT-S/16 feature extractors for I-JEPA (predictive) and MAE (reconstruction).
+"""ViT feature extractors for I-JEPA (predictive) and MAE (reconstruction).
 
-Both share an identical timm ViT-S/16 backbone -- this is the proposal's
+Both share an identical timm ViT backbone (default ViT-L/16) -- the project's
 architecture control: the *only* difference is which self-supervised checkpoint
 is loaded. Features are mean-pooled over patch tokens (the CLS token, if present,
 is dropped) so the two are pooled identically and comparably.
@@ -14,7 +14,7 @@ from .base import Encoder, EncoderSpec
 
 
 class _ViTBackbone(nn.Module):
-    """timm ViT with classifier removed; returns mean-pooled patch tokens [B, 384]."""
+    """timm ViT with classifier removed; returns mean-pooled patch tokens [B, D]."""
 
     def __init__(self, arch: str, pool: str = "mean"):
         super().__init__()

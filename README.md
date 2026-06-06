@@ -176,7 +176,7 @@ Results land under `results/<dataset>/`:
 | `svm/svm_summary.json`        | Accuracy, mean margin, support-vector counts, hardest class pairs |
 | `svm/confusion_<encoder>.png` | Per-encoder confusion matrix |
 | `connect/rank_vs_margin.csv`  | Combined rank↔margin table |
-| `connect/connect_report.json` | Correlations + architecture-controlled MAE/I-JEPA delta |
+| `connect/connect_report.json` | Correlations + architecture-controlled predictive/reconstruction delta |
 | `connect/rank_vs_margin.png`  | Effective-rank vs margin scatter |
 
 ---
