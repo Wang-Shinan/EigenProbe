@@ -13,6 +13,7 @@ from pathlib import Path
 from _bootstrap import init
 
 from src.analysis.connect import rank_margin_table
+from src.encoders import load_encoder_specs
 from src.viz import plot_rank_vs_margin
 
 
@@ -31,7 +32,14 @@ def main():
             "svm_accuracy": svm[name]["accuracy"],
         }
 
-    res = rank_margin_table(per_encoder)
+    # Detect the architecture-controlled pair by paradigm (name-agnostic):
+    # the predictive (I-JEPA) and reconstruction (MAE) encoders sharing a backbone.
+    specs = load_encoder_specs()
+    pred = next((n for n in cfg.encoders if specs[n].paradigm == "predictive"), None)
+    recon = next((n for n in cfg.encoders if specs[n].paradigm == "reconstruction"), None)
+    controlled_pair = (pred, recon) if pred and recon else None
+
+    res = rank_margin_table(per_encoder, controlled_pair=controlled_pair)
     rows = res.to_rows()
 
     out_dir = base / "connect"
@@ -47,7 +55,7 @@ def main():
         "table": rows,
         "pearson_rankme_vs_margin": res.pearson_rank_margin,
         "spearman_rankme_vs_margin": res.spearman_rank_margin,
-        "mae_ijepa_delta": res.mae_ijepa_delta,
+        "controlled_delta": res.controlled_delta,
         "note": "Structural correlation across frozen encoders, NOT a causal claim.",
     }
     (out_dir / "connect_report.json").write_text(json.dumps(report, indent=2))
@@ -55,13 +63,11 @@ def main():
 
     log.info("Pearson(RankMe, margin)  = r=%.3f p=%.3f", *res.pearson_rank_margin)
     log.info("Spearman(RankMe, margin) = rho=%.3f p=%.3f", *res.spearman_rank_margin)
-    if res.mae_ijepa_delta:
-        d = res.mae_ijepa_delta
+    if res.controlled_delta:
+        d = res.controlled_delta
         log.info(
-            "I-JEPA - MAE (same ViT-S/16):  dRankMe=%+.2f  dMargin=%+.4f  dAcc=%+.3f",
-            d["rankme_diff_ijepa_minus_mae"],
-            d["margin_diff_ijepa_minus_mae"],
-            d["accuracy_diff_ijepa_minus_mae"],
+            "controlled pair [%s] (same backbone):  dRankMe=%+.2f  dMargin=%+.4f  dAcc=%+.3f",
+            d["pair"], d["rankme_diff"], d["margin_diff"], d["accuracy_diff"],
         )
     log.info("Wrote %s", out_dir / "connect_report.json")
 

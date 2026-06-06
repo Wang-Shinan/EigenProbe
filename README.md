@@ -23,13 +23,19 @@ architecture control.
 |-------------------------|--------------|-----------------|------|
 | `resnet18_supervised`   | ResNet-18    | Supervised      | CNN baseline |
 | `simclr_resnet18`       | ResNet-18    | Contrastive     | Contrastive baseline |
-| `ijepa_vits16`          | ViT-S/16     | Predictive      | **Focus of the study** |
-| `mae_vits16`            | ViT-S/16     | Reconstruction  | Architecture control vs I-JEPA |
+| `ijepa_vitl16`          | ViT-L/16     | Predictive      | **Focus of the study** |
+| `mae_vitl16`            | ViT-L/16     | Reconstruction  | Architecture control vs I-JEPA |
 
-I-JEPA and MAE share an **identical ViT-S/16 backbone** and differ only in their
+I-JEPA and MAE share an **identical ViT backbone** and differ only in their
 self-supervised objective. This pairing isolates the effect of the *predictive
 objective* from the effect of the *Transformer architecture* — the cleanest test
 in the project.
+
+> **Backbone size:** the proposal targeted ViT-S/16, but neither MAE nor I-JEPA
+> publish official ViT-S/16 weights. The smallest backbone where *both* have
+> official checkpoints is **ViT-L/16**, which is the default. The only hard
+> requirement is that I-JEPA and MAE use the *same* backbone — see the note in
+> [configs/encoders.yaml](configs/encoders.yaml) to switch sizes.
 
 ---
 
@@ -97,9 +103,13 @@ three need manual download — drop them at the paths in
 
 | Encoder | Source |
 |---------|--------|
-| I-JEPA ViT-S/16  | https://github.com/facebookresearch/ijepa |
-| MAE ViT-S/16     | https://github.com/facebookresearch/mae |
+| I-JEPA ViT-L/16  | https://github.com/facebookresearch/ijepa (or a HuggingFace mirror) |
+| MAE ViT-L/16     | https://github.com/facebookresearch/mae (`mae_pretrain_vit_large.pth`) |
 | SimCLR ResNet-18 | https://github.com/google-research/simclr (convert) or a PyTorch port |
+
+> See [docs/远程跑实验_runbook.md](docs/远程跑实验_runbook.md) for the full
+> download + configuration checklist and GPU time estimates (incl. the RTX 5090 /
+> Blackwell PyTorch caveat).
 
 Verify everything loads:
 

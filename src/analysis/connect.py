@@ -23,7 +23,7 @@ class ConnectResult:
     svm_accuracy: np.ndarray
     pearson_rank_margin: tuple   # (r, p)
     spearman_rank_margin: tuple  # (rho, p)
-    mae_ijepa_delta: dict        # the architecture-controlled comparison
+    controlled_delta: dict       # architecture-controlled pair: predictive - reconstruction
 
     def to_rows(self) -> list[dict]:
         rows = []
@@ -40,12 +40,18 @@ class ConnectResult:
         return rows
 
 
-def rank_margin_table(per_encoder: dict[str, dict]) -> ConnectResult:
+def rank_margin_table(
+    per_encoder: dict[str, dict],
+    controlled_pair: tuple[str, str] | None = None,
+) -> ConnectResult:
     """Assemble the cross-encoder association.
 
     Args:
         per_encoder: {encoder_name: {"rankme":..., "pca_effective_rank":...,
                       "mean_margin":..., "svm_accuracy":...}, ...}
+        controlled_pair: (predictive_name, reconstruction_name) — the same-backbone
+            pair (e.g. I-JEPA vs MAE) for the architecture-controlled delta. Passed
+            in by the caller (detected by paradigm) so this stays name-agnostic.
     """
     names = list(per_encoder.keys())
     rankme = np.array([per_encoder[n]["rankme"] for n in names])
@@ -62,15 +68,19 @@ def rank_margin_table(per_encoder: dict[str, dict]) -> ConnectResult:
     else:
         pearson = spearman = (float("nan"), float("nan"))
 
-    # Architecture-controlled delta: MAE vs I-JEPA (same ViT-S/16).
+    # Architecture-controlled delta: predictive vs reconstruction, same backbone
+    # (e.g. I-JEPA vs MAE). Reported as predictive - reconstruction.
     delta = {}
-    if "ijepa_vits16" in per_encoder and "mae_vits16" in per_encoder:
-        j, m = per_encoder["ijepa_vits16"], per_encoder["mae_vits16"]
-        delta = {
-            "rankme_diff_ijepa_minus_mae": j["rankme"] - m["rankme"],
-            "margin_diff_ijepa_minus_mae": j["mean_margin"] - m["mean_margin"],
-            "accuracy_diff_ijepa_minus_mae": j["svm_accuracy"] - m["svm_accuracy"],
-        }
+    if controlled_pair is not None:
+        pred, recon = controlled_pair
+        if pred in per_encoder and recon in per_encoder:
+            p, r = per_encoder[pred], per_encoder[recon]
+            delta = {
+                "pair": f"{pred} - {recon}",
+                "rankme_diff": p["rankme"] - r["rankme"],
+                "margin_diff": p["mean_margin"] - r["mean_margin"],
+                "accuracy_diff": p["svm_accuracy"] - r["svm_accuracy"],
+            }
 
     return ConnectResult(
         encoders=names,
@@ -80,5 +90,5 @@ def rank_margin_table(per_encoder: dict[str, dict]) -> ConnectResult:
         svm_accuracy=acc,
         pearson_rank_margin=pearson,
         spearman_rank_margin=spearman,
-        mae_ijepa_delta=delta,
+        controlled_delta=delta,
     )

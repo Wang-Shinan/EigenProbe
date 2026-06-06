@@ -27,8 +27,8 @@ dataset:
 encoders:
   - resnet18_supervised
   - simclr_resnet18
-  - ijepa_vits16
-  - mae_vits16
+  - ijepa_vitl16          # predictive (focus); ViT-L/16 — see configs/encoders.yaml note
+  - mae_vitl16            # reconstruction (architecture control vs I-JEPA)
 
 features:
   batch_size: 256
